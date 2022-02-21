@@ -4,16 +4,17 @@ import 'package:userlocalauth/pages/wellcome.dart';
 import 'package:userlocalauth/utils/localauthservice.dart';
 import 'package:flutter/services.dart';
 
-BuildContext? _context;
-
 class MainPage extends StatelessWidget {
   const MainPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _context = context;
-    return const Scaffold(
-      body: MainPageBody(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('User Local Auth'),
+        centerTitle: true,
+      ),
+      body: const MainPageBody(),
     );
   }
 }
@@ -26,9 +27,15 @@ class MainPageBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(40),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Do you want to authenticate'),
+          const Text(
+            'Do you want to authenticate',
+            style: TextStyle(fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
               biometricPrompt();
@@ -57,7 +64,7 @@ class MainPageBody extends StatelessWidget {
     String value = '';
     try {
       value = await platform.invokeMethod("biometricPrompt");
-      print('Value form kotlin : ${value}');
+      print('Value form kotlin : $value');
     } catch (e) {
       print(e);
     }
@@ -67,7 +74,7 @@ class MainPageBody extends StatelessWidget {
     String value = '';
     try {
       value = await platform.invokeMethod("keyguardManager");
-      print('is authenticated : ${value}');
+      print('is authenticated : $value');
     } catch (e) {
       print(e);
     }
@@ -77,7 +84,7 @@ class MainPageBody extends StatelessWidget {
     String value = '';
     try {
       value = await platform.invokeMethod("isAuthenticated");
-      print('is authenticated : ${value}');
+      print('is authenticated : $value');
     } catch (e) {
       print(e);
     }

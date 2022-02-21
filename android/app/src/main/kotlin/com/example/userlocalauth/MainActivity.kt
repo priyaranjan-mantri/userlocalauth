@@ -104,6 +104,7 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
     
     fun keyguardAuth(){
         keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+        
         var i = keyguardManager.createConfirmDeviceCredentialIntent("Title", "Description")
         try {
             var a = startActivityForResult(i, LOCK_REQUEST_CODE)
@@ -117,7 +118,8 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
             } catch (e:Exception) {
                 println("info 4: "+e)
                 }
-            }  
+            }
+        println("ok completed");  
     }
 
     fun isAuthenticated():String{
