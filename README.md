@@ -4,7 +4,7 @@ A new Flutter project.
 
 keyguard_manager
 biomatric_prompt
-biomatric(finger print, face detection, eye etc)
+biomatric(fingerprint, face detection, eye etc)
 
 
 ## Getting Started
