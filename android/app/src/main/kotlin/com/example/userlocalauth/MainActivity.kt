@@ -1,5 +1,7 @@
 package com.example.userlocalauth
 
+import android.app.Activity
+import io.flutter.plugin.common.MethodCall
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.biometric.BiometricManager
@@ -11,11 +13,14 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executor
-import android.content.Context;
-import android.app.KeyguardManager;
-import android.content.Intent;
-import android.provider.Settings;
-import android.hardware.fingerprint.FingerprintManager;
+import android.content.Context
+import android.app.KeyguardManager
+import android.content.Intent
+import android.provider.Settings
+import android.hardware.fingerprint.FingerprintManager
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat.startActivityForResult
 
 class MainActivity: FlutterFragmentActivity() { // flutter fragment for load auth screen....important
      private val CHANNEL = "com.flutter.epic/epic"
@@ -42,8 +47,7 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "biometricPrompt") {
-                result.success("This is kotlin")
-                biometricAuth()
+                biometricAuth(result)
             }
             else if(call.method == "keyguardManager"){
                 keyguardAuth()
@@ -52,9 +56,18 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
                 var isValid = isAuthenticated()
                 result.success(isValid)
             }
+            else if(call.method == "withArgs"){
+                result.success(call.arguments)
+            }
+            else if(call.method == "withArgsCallback"){
+                call.arguments
+            }
         }
     }
-    fun biometricAuth(){
+
+    //-------------Biometric prompt-----------------
+
+    fun biometricAuth(resulta:MethodChannel.Result){
         val activity: FragmentActivity = this //this is important
         val executor = ContextCompat.getMainExecutor(activity)
         val biometricManager = BiometricManager.from(activity) 
@@ -88,6 +101,7 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
                     isValidUser = "true"
                     super.onAuthenticationSucceeded(result)
                     Log.d("MainActivity", "Authentication was successful")
+                    resulta.success(isValidUser)
                 }
             }
 
@@ -101,14 +115,16 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
             biometricPrompt.authenticate(promptInfo)
         }
     }
+
+    // -------- keyguard manager -------------
     
     fun keyguardAuth(){
         keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
         
         var i = keyguardManager.createConfirmDeviceCredentialIntent("Title", "Description")
         try {
-            var a = startActivityForResult(i, LOCK_REQUEST_CODE)
-            println("info 1: "+a)
+            //startActivityForResult(i, LOCK_REQUEST_CODE)
+            getResult.launch(i)
         } catch (e:Exception) {
             println("info 2: "+e)
             var intent = Intent(Settings.ACTION_SECURITY_SETTINGS);
@@ -122,6 +138,22 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
         println("ok completed");  
     }
 
+    var getResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        result: ActivityResult? -> if (result!!.resultCode == RESULT_OK){
+            println("OK yes")
+        }else{
+            println("Not ok")
+        }
+    }
+
+    fun onActivityResultGet(requestCode: Int, resultCode: Int) {
+        if (requestCode == LOCK_REQUEST_CODE && resultCode == RESULT_OK) {
+            println("ok completed auth");
+        }else{
+            println("not ok completed auth");
+        }
+    }
+    
     fun isAuthenticated():String{
         try{
 
@@ -134,16 +166,16 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
             println("is locked : $locked")
             println("is device secure : $isSecure") 
             println("is device locked : $isDeviceloked")    
-            println("is key locked : $isKeyLocked") 
+            println("is key locked (to be): $isKeyLocked") 
             println("is key guard secuew : $iskeyguardSecure") 
 
         } catch (e:Exception) {
             println("info 4: "+e)
             println("is locked : $locked")
-            println("is device secure : $isSecure") 
-            println("is device locked : $isDeviceloked")    
-            println("is key locked : $isKeyLocked") 
-            println("is key guard secuew : $iskeyguardSecure") 
+            println("is device secure : $isSecure")
+            println("is device locked : $isDeviceloked")
+            println("is key guard locked (to be): $isKeyLocked")
+            println("is key guard secuew : $iskeyguardSecure")
             }
 
         println(RESULT_OK)

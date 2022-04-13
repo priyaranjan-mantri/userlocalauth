@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:userlocalauth/pages/wellcome.dart';
@@ -54,19 +56,30 @@ class MainPageBody extends StatelessWidget {
             },
             child: const Text('is Authenticated'),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              //withArgs();
+              withArgsCallback();
+            },
+            child: const Text('with args'),
+          ),
         ],
       ),
     );
   }
 
   static const platform = MethodChannel("com.flutter.epic/epic");
+
   void biometricPrompt() async {
     String value = '';
     try {
       value = await platform.invokeMethod("biometricPrompt");
-      print('Value form kotlin : $value');
+      log('Value form kotlin : $value');
+      if (value == "true") {
+        Get.to(() => const WellCome());
+      }
     } catch (e) {
-      print(e);
+      log('Error : $e');
     }
   }
 
@@ -74,9 +87,9 @@ class MainPageBody extends StatelessWidget {
     String value = '';
     try {
       value = await platform.invokeMethod("keyguardManager");
-      print('is authenticated : $value');
+      log('is authenticated : $value');
     } catch (e) {
-      print(e);
+      log('error : $e');
     }
   }
 
@@ -84,9 +97,36 @@ class MainPageBody extends StatelessWidget {
     String value = '';
     try {
       value = await platform.invokeMethod("isAuthenticated");
-      print('is authenticated : $value');
+      log('is authenticated : $value');
     } catch (e) {
-      print(e);
+      log('error : $e');
     }
   }
+
+  void withArgs() async {
+    String value = '';
+    try {
+      value = await platform.invokeMethod("withArgs", "Hello from Flutter");
+      log('my args : $value');
+    } catch (e) {
+      log('error : $e');
+    }
+  }
+
+  void withArgsCallback() async {
+    String value = '';
+    try {
+      value = await platform.invokeMethod("withArgsCallback", () {
+        log('message from flutter callback');
+      });
+
+      log('my args : $value');
+    } catch (e) {
+      log('error : $e');
+    }
+  }
+
+  // $ check biomteric is avalable or not
+  // ? if yes then go for => biometric prompt
+  // * if no then go for => keyguard manager
 }
