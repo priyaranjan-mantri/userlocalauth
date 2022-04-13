@@ -116,7 +116,7 @@ class MainActivity: FlutterFragmentActivity() { // flutter fragment for load aut
         }
     }
 
-    // -------- keyguard manager -------------
+    // -------- keyguard manager --- ----------
     
     fun keyguardAuth(){
         keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
